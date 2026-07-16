@@ -1,335 +1,414 @@
-# jsharden 🔒
+# jsharden
 
-A powerful, production-grade JavaScript obfuscator for Node.js and browsers that hardens code against reverse engineering. Built on `javascript-obfuscator` + `Terser` + custom VM + `WASM`.
+A powerful, production-grade JavaScript obfuscator for Node.js and browsers that hardens code against reverse engineering. Built on `javascript-obfuscator`, `Terser`, a custom VM, and `WASM`.
 
-**Version:** 2.0.0 | **License:** MIT | **Node.js:** >= 18.0.0
+* **Version:** 2.0.0
+* **License:** MIT
+* **Node.js:** >= 18.0.0
 
 ---
 
-## 📋 Overview
+## Overview
 
 jsharden is an enterprise-grade code obfuscation tool with four configurable security profiles. It transforms readable JavaScript into protected, hardened code that deters casual reverse engineering while maintaining functionality.
 
 ### Why jsharden?
 
-- ✅ **Four Protection Levels:** Choose between `light`, `balanced`, `max`, and `armor`
-- - ✅ **Production Ready:** Used in real-world apps and games
-  - - ✅ **CLI + API:** Command-line and programmatic interfaces
-    - - ✅ **Deterministic Mode:** Reproducible builds with `--seed`
-      - - ✅ **Watch Mode:** Auto-harden files on change
-        - - ✅ **Batch Processing:** Obfuscate entire directories
-          - - ✅ **Config Files:** Project-level `.jshardencrc.json` support
-           
-            - ### ⚠️ Security Disclaimer
-           
-            - **Client-side obfuscation is DETERRENCE, not security.** Anything in a browser can be reverse-engineered by a determined attacker. **Keep real secrets server-side behind an authenticated API.** Use jsharden to raise the barrier to entry, not for cryptographic keys.
-           
-            - ---
+* Four protection levels: `light`, `balanced`, `max`, and `armor`
+* Production-ready for real-world applications and games
+* CLI and programmatic API support
+* Deterministic builds with `--seed`
+* Watch mode for automatic hardening
+* Batch processing support
+* Project-level configuration via `.jshardencrc.json`
 
-            ## ✨ Features
+---
 
-            | Feature | Details |
-            |---------|---------|
-            | **String Encoding** | RC4/Base64 string encryption |
-            | **Control-Flow Flattening** | Flatten logic to confuse analyzers |
-            | **Dead-Code Injection** | Add unreachable code |
-            | **Identifier Renaming** | Rename variables & functions |
-            | **Self-Defending** | Detect tampering attempts |
-            | **Custom VM** | Compile functions to bytecode |
-            | **WASM Encryption** | Encrypt strings with WebAssembly |
-            | **Minification** | Compress with Terser |
-            | **Watch Mode** | Re-harden on file change |
-            | **Smoke Testing** | Verify output works |
+## Security Disclaimer
 
-            ---
+Client-side obfuscation is a deterrent, not security.
 
-            ## 🚀 Installation
+Anything that runs in a browser can be reverse-engineered by a determined attacker. Real secrets should always remain server-side behind authenticated APIs.
 
-            ### Global (Recommended for CLI)
+Use jsharden to raise the barrier to reverse engineering, not to store cryptographic keys or sensitive information.
 
-            ```bash
-            npm install -g jsharden
-            jsharden --version  # Verify
-            ```
+---
 
-            ### Local (For Projects)
+## Features
 
-            ```bash
-            npm install jsharden --save-dev
-            ```
+| Feature                 | Details                                   |
+| ----------------------- | ----------------------------------------- |
+| String Encoding         | RC4 and Base64 string encoding            |
+| Control Flow Flattening | Makes code harder to analyze              |
+| Dead Code Injection     | Adds unreachable code paths               |
+| Identifier Renaming     | Renames variables and functions           |
+| Self Defending          | Detects common tampering attempts         |
+| Custom VM               | Compiles selected functions into bytecode |
+| WASM Encryption         | Encrypts string pools using WebAssembly   |
+| Minification            | Compresses output using Terser            |
+| Watch Mode              | Automatically hardens files on changes    |
+| Smoke Testing           | Verifies generated output                 |
 
-            Add to `package.json`:
-            ```json
-            {
-              "scripts": {
-                "harden": "jsharden src/app.js -o dist/app.js --profile balanced"
-              }
-            }
-            ```
+---
 
-            Run:
-            ```bash
-            npm run harden
-            ```
+## Installation
 
-            ---
+### Global Installation
 
-            ## ⚡ Quick Start
+```bash
+npm install -g jsharden
 
-            ### Single File
-            ```bash
-            jsharden input.js -o dist/output.js --profile balanced
-            ```
+jsharden --version
+```
 
-            ### Entire Directory
-            ```bash
-            jsharden ./src --out-dir ./dist --profile max
-            ```
+### Local Installation
 
-            ### Watch Mode
-            ```bash
-            jsharden ./src --out-dir ./dist --watch
-            ```
+```bash
+npm install --save-dev jsharden
+```
 
-            ### Maximum Protection
-            ```bash
-            jsharden app.js -o dist/app.js --profile armor --verify
-            ```
+Example `package.json` script:
 
-            ---
+```json
+{
+  "scripts": {
+    "harden": "jsharden src/app.js -o dist/app.js --profile balanced"
+  }
+}
+```
 
-            ## 🛡️ Obfuscation Profiles
+Run:
 
-            ### light — Fast & Minimal
-            ```bash
-            jsharden app.js -o dist/app.js --profile light
-            ```
-            - **Protection:** Basic identifier renaming + string hiding
-            - - **Size:** +5–15%
-              - - **Speed:** <5% overhead
-                - - **Best for:** Public APIs, utilities
-                 
-                  - ### balanced — Industry Standard (Recommended)
-                  - ```bash
-                    jsharden app.js -o dist/app.js --profile balanced
-                    ```
-                    - **Protection:** Control-flow flattening, dead-code, self-defending
-                    - - **Size:** +30–60%
-                      - - **Speed:** 5–20% overhead
-                        - - **Best for:** Web apps, SaaS frontends
-                         
-                          - ### max — High Security
-                          - ```bash
-                            jsharden app.js -o dist/app.js --profile max
-                            ```
-                            - **Protection:** RC4 encoding, aggressive flattening, chained wrappers
-                            - - **Size:** +80–200%
-                              - - **Speed:** 20–80% overhead
-                                - - **Effort to reverse:** 1–2 weeks
-                                  - - **Best for:** Game clients, premium tools
-                                   
-                                    - ### armor — Maximum Protection
-                                    - ```bash
-                                      jsharden app.js -o dist/app.js --profile armor --verify
-                                      ```
-                                      - **Protection:** All of `max` + VM bytecode + WASM encryption + integrity hash + self-healing
-                                      - - **Size:** Similar to `max`
-                                        - - **Speed:** 20–80%+ overhead
-                                          - - **Effort to reverse:** Near-impossible
-                                            - - **Note:** VM-compiled functions are unrecoverable
-                                              - - **Best for:** Ultra-sensitive apps, financial tools
-                                               
-                                                - ---
+```bash
+npm run harden
+```
 
-                                                ## 🖥️ CLI Reference
+---
 
-                                                ### Syntax
-                                                ```bash
-                                                jsharden <input> [options]
-                                                jsharden <file1.js> <file2.js> ...
-                                                jsharden ./src [options]
-                                                ```
+## Quick Start
 
-                                                ### Output Options
-                                                ```bash
-                                                -o, --out-file <f>    # Single output file
-                                                -d, --out-dir <dir>   # Output directory (batch)
-                                                ```
+### Single File
 
-                                                ### Profiles
-                                                ```bash
-                                                --profile light       # Default: balanced
-                                                --profile balanced
-                                                --profile max
-                                                --profile armor
-                                                ```
+```bash
+jsharden input.js -o dist/output.js --profile balanced
+```
 
-                                                ### Development
-                                                ```bash
-                                                -w, --watch           # Re-harden on change
-                                                --verify              # Test output in sandbox
-                                                --seed <n>            # Deterministic output
-                                                ```
+### Entire Directory
 
-                                                ### Security
-                                                ```bash
-                                                --anti-debug          # Enable debug protection
-                                                --console-off         # Strip console.* calls
-                                                --no-terser           # Skip compression
-                                                --no-gate             # Skip Browser-Gate (armor only)
-                                                ```
+```bash
+jsharden ./src --out-dir ./dist --profile max
+```
 
-                                                ### Advanced
-                                                ```bash
-                                                --config <path>       # Config file path
-                                                --obfuscator.K=V      # Pass to javascript-obfuscator
-                                                ```
+### Watch Mode
 
-                                                ### Info
-                                                ```bash
-                                                -h, --help            # Show help
-                                                -v, --version         # Show version
-                                                ```
+```bash
+jsharden ./src --out-dir ./dist --watch
+```
 
-                                                ---
+### Maximum Protection
 
-                                                ## 💻 Programmatic API
+```bash
+jsharden app.js -o dist/app.js --profile armor --verify
+```
 
-                                                Use jsharden in your build pipeline:
+---
 
-                                                ```javascript
-                                                import { harden } from 'jsharden';
+## Protection Profiles
 
-                                                const result = await harden({
-                                                  code: 'const secret = "api-key"; console.log(secret);',
-                                                  profile: 'max',       // 'light', 'balanced', 'max', 'armor'
-                                                  seed: 12345,          // Optional: reproducible output
-                                                  verify: true,         // Optional: test output
-                                                  terser: true,         // Optional: minify (default: true)
-                                                  gate: true,           // Optional: use browser-gate (armor only)
-                                                  antiDebug: false,     // Optional: debug protection
-                                                  consoleOff: false,    // Optional: strip console calls
-                                                });
+### light
 
-                                                console.log(result.code);      // Obfuscated code
-                                                console.log(result.warnings);  // Any warnings
-                                                ```
+```bash
+jsharden app.js -o dist/app.js --profile light
+```
 
-                                                ---
+| Property             | Value                                       |
+| -------------------- | ------------------------------------------- |
+| Protection           | Basic identifier renaming and string hiding |
+| Size Increase        | 5%–15%                                      |
+| Performance Overhead | Less than 5%                                |
+| Recommended For      | Public APIs and utilities                   |
 
-                                                ## 📝 Configuration File
+---
 
-                                                Create `.jshardencrc.json` in your project:
+### balanced (Recommended)
 
-                                                ```json
-                                                {
-                                                  "profile": "balanced",
-                                                  "seed": 42,
-                                                  "terser": true,
-                                                  "consoleOff": false,
-                                                  "antiDebug": false,
-                                                  "gate": true
-                                                }
-                                                ```
+```bash
+jsharden app.js -o dist/app.js --profile balanced
+```
 
-                                                CLI flags override config file settings.
+| Property             | Value                                                        |
+| -------------------- | ------------------------------------------------------------ |
+| Protection           | Control flow flattening, dead code injection, self-defending |
+| Size Increase        | 30%–60%                                                      |
+| Performance Overhead | 5%–20%                                                       |
+| Recommended For      | Web applications and SaaS frontends                          |
 
-                                                ---
+---
 
-                                                ## 🎯 Real-World Examples
+### max
 
-                                                ### React App Protection
-                                                ```bash
-                                                npm run build
-                                                jsharden dist/index.js -o dist/index.hardened.js --profile max --verify
-                                                mv dist/index.hardened.js dist/index.js
-                                                ```
+```bash
+jsharden app.js -o dist/app.js --profile max
+```
 
-                                                ### Game Client (Maximum Protection)
-                                                ```bash
-                                                jsharden src/game-logic.js -o dist/game-logic.js \
-                                                  --profile armor \
-                                                  --verify \
-                                                  --seed 9001
-                                                ```
+| Property                             | Value                                                 |
+| ------------------------------------ | ----------------------------------------------------- |
+| Protection                           | RC4 encoding, aggressive flattening, chained wrappers |
+| Size Increase                        | 80%–200%                                              |
+| Performance Overhead                 | 20%–80%                                               |
+| Estimated Reverse Engineering Effort | 1–2 weeks                                             |
+| Recommended For                      | Game clients and premium software                     |
 
-                                                ### Development with Watch Mode
-                                                ```bash
-                                                jsharden src/app.js -o dist/app.js --watch --profile balanced
-                                                ```
+---
 
-                                                ### Monorepo Batch Protection
-                                                ```bash
-                                                jsharden packages/*/src --out-dir dist --profile balanced
-                                                ```
+### armor
 
-                                                ### Reproducible CI/CD Builds
-                                                ```bash
-                                                jsharden src/app.js -o dist/app.js --profile max --seed 12345 --verify
-                                                ```
+```bash
+jsharden app.js -o dist/app.js --profile armor --verify
+```
 
-                                                ---
+| Property             | Value                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| Protection           | All max features plus VM bytecode, WASM encryption, integrity checks, and self-healing |
+| Size Increase        | Similar to max                                                                         |
+| Performance Overhead | 20%–80%+                                                                               |
+| Recommended For      | Financial tools and highly sensitive applications                                      |
 
-                                                ## 📊 Use Cases
+> Note: VM-compiled functions are significantly harder to recover but should not be considered impossible to reverse engineer.
 
-                                                | Scenario | Profile | Reason |
-                                                |----------|---------|--------|
-                                                | Public library | `light` | Minimal overhead |
-                                                | Internal web app | `balanced` | Industry standard |
-                                                | Premium SaaS | `max` | High security |
-                                                | Game/financial tool | `armor` | Maximum protection |
-                                                | Real-time app | `light` | Performance critical |
-                                                | Production CI/CD | `balanced` with `--seed` | Reproducible builds |
+---
 
-                                                ---
+## CLI Reference
 
-                                                ## 🐛 Troubleshooting
+### Syntax
 
-                                                ### Code Breaks After Obfuscation
-                                                1. Ensure Node.js >= 18.0.0
-                                                2. 2. Try lighter profile (`light` or `balanced`)
-                                                   3. 3. Use `--no-terser` to isolate the issue
-                                                      4. 4. Use `--verify` to catch errors early
-                                                         5. 5. Avoid dynamic property access: `obj[variableName]`
-                                                           
-                                                            6. ### File Size Too Large
-                                                            7. - Ensure `--no-terser=false` (Terser should run)
-                                                               - - Switch to lighter profile
-                                                                 - - Use `--seed` for consistent sizes
-                                                                  
-                                                                   - ### Performance Degraded
-                                                                   - - Consider `light` profile for time-critical code
-                                                                     - - Use `--no-gate` for armor profile
-                                                                       - - Profile with browser DevTools
-                                                                        
-                                                                         - ### Debugging Obfuscated Code
-                                                                         - - Keep source maps during development
-                                                                           - - Use `light` profile during active dev
-                                                                             - - Switch to `max`/`armor` for production
-                                                                              
-                                                                               - ---
+```bash
+jsharden <input> [options]
+jsharden <file1.js> <file2.js> ...
+jsharden ./src [options]
+```
 
-                                                                               ## 🏗️ Architecture
+### Output Options
 
-                                                                               Built on industry-standard tools:
-                                                                               - **javascript-obfuscator:** Core obfuscation engine
-                                                                               - - **terser:** Minification & compression
-                                                                                 - - **Custom VM:** Bytecode interpreter (armor)
-                                                                                   - - **WASM:** String pool encryption (armor)
-                                                                                     - - **Babel:** AST parsing & transformation
-                                                                                      
-                                                                                       - ---
+```bash
+-o, --out-file <file>
+-d, --out-dir <directory>
+```
 
-                                                                                       ## 📄 License
+### Profiles
 
-                                                                                       MIT © Roshu18
+```bash
+--profile light
+--profile balanced
+--profile max
+--profile armor
+```
 
-                                                                                       ---
+### Development Options
 
-                                                                                       ## 🤝 Contributing
+```bash
+-w, --watch
+--verify
+--seed <number>
+```
 
-                                                                                       Contributions welcome! Open issues and PRs on GitHub.
+### Security Options
 
-                                                                                       ---
+```bash
+--anti-debug
+--console-off
+--no-terser
+--no-gate
+```
 
-                                                                                       **Made with ❤️ for code protection**
+### Advanced Options
+
+```bash
+--config <path>
+--obfuscator.K=V
+```
+
+### Information
+
+```bash
+-h, --help
+-v, --version
+```
+
+---
+
+## Programmatic API
+
+```javascript
+import { harden } from "jsharden";
+
+const result = await harden({
+  code: 'const secret = "api-key"; console.log(secret);',
+  profile: "max",
+  seed: 12345,
+  verify: true,
+  terser: true,
+  gate: true,
+  antiDebug: false,
+  consoleOff: false
+});
+
+console.log(result.code);
+console.log(result.warnings);
+```
+
+---
+
+## Configuration File
+
+Create a `.jshardencrc.json` file:
+
+```json
+{
+  "profile": "balanced",
+  "seed": 42,
+  "terser": true,
+  "consoleOff": false,
+  "antiDebug": false,
+  "gate": true
+}
+```
+
+CLI flags always take precedence over configuration values.
+
+---
+
+## Real-World Examples
+
+### React Application
+
+```bash
+npm run build
+
+jsharden dist/index.js \
+  -o dist/index.hardened.js \
+  --profile max \
+  --verify
+
+mv dist/index.hardened.js dist/index.js
+```
+
+### Game Client
+
+```bash
+jsharden src/game-logic.js \
+  -o dist/game-logic.js \
+  --profile armor \
+  --verify \
+  --seed 9001
+```
+
+### Development Workflow
+
+```bash
+jsharden src/app.js \
+  -o dist/app.js \
+  --watch \
+  --profile balanced
+```
+
+### Monorepo Projects
+
+```bash
+jsharden packages/*/src \
+  --out-dir dist \
+  --profile balanced
+```
+
+### Reproducible Builds
+
+```bash
+jsharden src/app.js \
+  -o dist/app.js \
+  --profile max \
+  --seed 12345 \
+  --verify
+```
+
+---
+
+## Recommended Profiles
+
+| Use Case                          | Profile              |
+| --------------------------------- | -------------------- |
+| Public Libraries                  | light                |
+| Internal Web Apps                 | balanced             |
+| Premium SaaS                      | max                  |
+| Game Clients                      | armor                |
+| Performance-Critical Applications | light                |
+| CI/CD Pipelines                   | balanced with --seed |
+
+---
+
+## Troubleshooting
+
+### Code Breaks After Obfuscation
+
+1. Ensure Node.js 18 or later is installed.
+2. Try a lighter profile.
+3. Use `--no-terser` for debugging.
+4. Use `--verify` to validate the generated output.
+5. Avoid fragile dynamic property access when possible.
+
+---
+
+### Large Output Files
+
+* Ensure Terser is enabled.
+* Switch to a lighter profile if necessary.
+* Use deterministic builds with `--seed`.
+
+---
+
+### Performance Issues
+
+* Use the `light` profile for performance-sensitive applications.
+* Disable Browser Gate using `--no-gate` if applicable.
+* Profile your application using browser developer tools.
+
+---
+
+### Debugging Hardened Code
+
+* Keep source maps during development.
+* Use the `light` profile while actively developing.
+* Switch to `max` or `armor` for production builds.
+
+---
+
+## Architecture
+
+jsharden is built on the following technologies:
+
+* javascript-obfuscator
+* Terser
+* Babel
+* Custom VM (Armor Profile)
+* WebAssembly (Armor Profile)
+
+---
+
+## License
+
+MIT License
+
+Copyright (c) Roshu18
+
+---
+
+## Contributing
+
+Contributions are welcome. Feel free to open issues or submit pull requests.
+
+---
+
+## Notes
+
+No client-side protection mechanism is unbreakable. Obfuscation increases the time and effort required for reverse engineering, but it does not replace proper application security practices.
+
+Always keep sensitive data and business logic on trusted servers whenever possible.
