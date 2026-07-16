@@ -1,0 +1,51 @@
+{
+  "name": "jsharden",
+  "version": "2.0.0",
+  "description": "Best-in-class Node.js CLI for hardening JavaScript against reverse engineering. Built on javascript-obfuscator + Terser + custom VM + WASM.",
+  "type": "module",
+  "bin": {
+    "jsharden": "src/cli.js"
+  },
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./profiles.js": "./src/profiles.js"
+  },
+  "files": [
+    "src",
+    "wrappers",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "demo": "node src/cli.js examples/demo.js --profile max --out-dir dist",
+    "prepublishOnly": "npm test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "obfuscation",
+    "obfuscator",
+    "javascript",
+    "minify",
+    "protect",
+    "harden",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/parser": "^8.0.0",
+    "@babel/traverse": "^8.0.0",
+    "@babel/types": "^8.0.0",
+    "javascript-obfuscator": "^4.1.1",
+    "terser": "^5.36.0",
+    "tinyglobby": "^0.2.10",
+    "wabt": "^1.0.39"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  }
+}
